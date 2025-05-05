@@ -1,0 +1,41 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\guicu\\OneDrive\\Documentos\\prog\\facul\\t1_soba_2025\\trab1_soba\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{EFB5054B-0BBD-44BB-B9CF-1C89993249D2}|trab1_soba.vcxproj|C:\\Users\\guicu\\OneDrive\\Documentos\\prog\\facul\\t1_soba_2025\\trab1_soba\\compacta.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{EFB5054B-0BBD-44BB-B9CF-1C89993249D2}|trab1_soba.vcxproj|solutionrelative:compacta.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "compacta.c",
+              "DocumentMoniker": "C:\\Users\\guicu\\OneDrive\\Documentos\\prog\\facul\\t1_soba_2025\\trab1_soba\\compacta.c",
+              "RelativeDocumentMoniker": "compacta.c",
+              "ToolTip": "C:\\Users\\guicu\\OneDrive\\Documentos\\prog\\facul\\t1_soba_2025\\trab1_soba\\compacta.c",
+              "RelativeToolTip": "compacta.c",
+              "ViewState": "AgIAAEUAAAAAAAAAAAAAAEwAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-05-05T23:36:18.022Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
