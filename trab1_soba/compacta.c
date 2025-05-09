@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-
 // Calcula o tamanho de uma struct com base no descritor
 int TamanhoStruct(char* descritor) {
     int tamanho = 0;
@@ -41,7 +40,8 @@ int TamanhoStruct(char* descritor) {
 void grava_inteiro(FILE* arquivo, int valor, int com_sinal) {
     if (com_sinal) {
         fwrite(&valor, sizeof(int), 1, arquivo);
-    } else {
+    }
+    else {
         unsigned int uvalor = (unsigned int)valor;
         fwrite(&uvalor, sizeof(unsigned int), 1, arquivo);
     }
@@ -52,16 +52,13 @@ void grava_string(FILE* arquivo, char* valor, int tamanho) {
     fwrite(valor, sizeof(char), tamanho, arquivo);
 }
 
-// Função principal de gravação compacta
+// Gravação compacta com base no descritor
 int gravacomp(int nstructs, void* valores, char* descritor, FILE* arquivo) {
-    fputc(nstructs, arquivo); // grava a quantidade como 1 byte
+    fputc(nstructs, arquivo);
 
     unsigned char* base = (unsigned char*)valores;
     int tamanhoStruct = TamanhoStruct(descritor);
-
-    if (tamanhoStruct == -1) {
-        return 0;
-    }
+    if (tamanhoStruct == -1) return 0;
 
     for (int i = 0; i < nstructs; i++) {
         int offset = 0;
@@ -100,18 +97,14 @@ int gravacomp(int nstructs, void* valores, char* descritor, FILE* arquivo) {
     return 1;
 }
 
-
-// Lê um inteiro (assinado ou não) do arquivo, dado o tamanho em bytes, e retorna num int64_t
+// Leitura big endian para até 4 bytes, com sinal opcional
 static int64_t le_valor(FILE* f, int tamanho, int com_sinal) {
     uint8_t buf[4] = { 0,0,0,0 };
-
-    // Para big endian, preenche buf[4-tamanho .. 3]
     for (int i = 0; i < tamanho; i++) {
         buf[4 - tamanho + i] = fgetc(f);
     }
 
     if (com_sinal) {
-        // Sign-extend manualmente
         int32_t v = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
         return v;
     } else {
@@ -120,37 +113,49 @@ static int64_t le_valor(FILE* f, int tamanho, int com_sinal) {
     }
 }
 
-static void mostracomp(FILE* arquivo) {
+// Exibição genérica com base no descritor
+static void mostracomp(FILE* arquivo, char* descritor) {
     int n = fgetc(arquivo);
     printf("Estruturas: %d\n\n", n);
 
     for (int i = 0; i < n; i++) {
-        int valor1;
-        unsigned int valor2;
-        int valor3;
-        char texto[11]; // +1 para o caractere nulo
-
-        fread(&valor1, sizeof(int), 1, arquivo);
-        fread(&valor2, sizeof(unsigned int), 1, arquivo);
-        fread(&valor3, sizeof(int), 1, arquivo);
-        fread(texto, sizeof(char), 10, arquivo);
-        texto[10] = '\0'; // Garante a terminação da string
-
         printf("Estrutura %d:\n", i + 1);
-        printf("  valor1: %d\n", valor1);
-        printf("  valor2: %u\n", valor2);
-        printf("  valor3: %d\n", valor3);
-        printf("  texto: %s\n\n", texto);
+
+        int d = 0;
+        while (descritor[d] != '\0') {
+            char tipo = descritor[d];
+
+            if (tipo == 'i') {
+                int64_t val = le_valor(arquivo, 4, 1);
+                printf("  int: %d\n", (int)val);
+                d += 1;
+            }
+            else if (tipo == 'u') {
+                int64_t val = le_valor(arquivo, 4, 0);
+                printf("  uint: %u\n", (unsigned int)val);
+                d += 1;
+            }
+            else if (tipo == 's') {
+                char tam_str[3] = { descritor[d + 1], descritor[d + 2], '\0' };
+                int tam = atoi(tam_str);
+                char* buffer = (char*)malloc(tam + 1);
+                fread(buffer, sizeof(char), tam, arquivo);
+                buffer[tam] = '\0';
+                printf("  string: %s\n", buffer);
+                free(buffer);
+                d += 3;
+            }
+        }
+        printf("\n");
     }
 }
 
-
-// Struct genérica para o exemplo com o descritor "iuis10"
+// Struct exemplo
 struct Registro {
     int valor1;
     unsigned int valor2;
     int valor3;
-    char texto[10];  // exatamente 10 bytes
+    char texto[10];
 };
 
 int main() {
@@ -158,23 +163,27 @@ int main() {
         { 42, 1000, -7, "TesteUm" },
         { -123, 9999, 88, "OutroTxt" }
     };
-    // preenche \0
+
     for (int i = 0; i < 2; i++) {
         int len = strlen(dados[i].texto);
         for (int j = len; j < 10; j++) dados[i].texto[j] = 0;
     }
 
-    // grava
+    char descritor[] = "iuis10";
+
     FILE* f = fopen("saida.bin", "wb");
     if (!f) { perror("fopen"); return 1; }
-    if (!gravacomp(2, dados, "iuis10", f)) { fprintf(stderr, "Erro!\n"); }
+    if (!gravacomp(2, dados, descritor, f)) {
+        fprintf(stderr, "Erro na gravação!\n");
+        fclose(f);
+        return 1;
+    }
     fclose(f);
 
-    // mostra
     f = fopen("saida.bin", "rb");
     if (!f) { perror("fopen"); return 1; }
-    mostracomp(f);
+    mostracomp(f, descritor);
     fclose(f);
 
-    return 0;
+    return 0;
 }
